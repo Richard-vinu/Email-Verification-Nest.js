@@ -18,15 +18,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       synchronize: true,
     }),
     AuthModule,
-    // MailerModule.forRoot({
-    //   transport: {
-    //     host: 'sandbox.smtp.mailtrap.io',
-    //     auth: {
-    //       user: '5646eccd122d09',
-    //       pass: '1242627b76aec5',
-    //     },
-    //   },
-    // }),
+
   ],
   // controllers: [AppController],
   // providers: [AppService],
