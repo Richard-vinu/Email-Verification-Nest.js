@@ -16,8 +16,6 @@ export class AdminGuard implements CanActivate {
     } 
     const token = authorizationHeader.split(' ')[1]; // Extract the token from the 'Bearer <token>' format
 
-
-
     try {
       const decoded: DecodedToken = jwt.verify(
         token,
@@ -32,7 +30,8 @@ export class AdminGuard implements CanActivate {
       } else {
         return false;
       }
-    } catch (err) {
+    } 
+    catch (err) {
       console.error(err);
       return false;
     }
