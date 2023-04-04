@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { IsVerified } from '../dto/create-auth.dto';
+import { isAdmin } from '../dto/create-auth.dto';
 
 @Entity('user')
 export class AuthUser {
@@ -18,11 +19,14 @@ export class AuthUser {
   @Column()
   password: string;
 
-  @Column({default:"",nullable:true})
+  @Column({ default: '', nullable: true })
   verifyToken: string;
 
   @Column({ default: IsVerified.FALSE })
   isEmailConfirmed: boolean;
+
+  @Column({ default: false })
+  isAdmin: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

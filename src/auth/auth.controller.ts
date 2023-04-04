@@ -9,7 +9,7 @@ import {
   NotFoundException,
   Query,
 } from '@nestjs/common';
-import { AuthService } from './Service/auth.service';
+import { AuthService } from './service/auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { AuthUser } from './entities/auth.entity';
@@ -21,13 +21,10 @@ import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
- 
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async create(@Body() createAuthDto: CreateAuthDto): Promise<AuthUser> {
+  async create(@Body() createAuthDto: CreateAuthDto){
     const user = await this.authService.createUser(createAuthDto);
     return user;
   }

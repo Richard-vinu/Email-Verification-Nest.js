@@ -28,17 +28,20 @@ export class AuthService {
   ) {}
 
   async createUser(createAuthDto: CreateAuthDto): Promise<AuthUser> {
-    const { email, password } = createAuthDto;
+    const { email, password, isAdmin } = createAuthDto;
+   // console.log(createAuthDto);
+// console.log(isAdmin);
 
-      const options: FindOneOptions<AuthUser> = { where: { email } };
+    const options: FindOneOptions<AuthUser> = { where: { email } };
 
-     const userExists = await this.userRepository.findOne(options);
-     if (userExists) {
-       throw new BadRequestException('Email already exists');
-     }
+    const userExists = await this.userRepository.findOne(options);
+    if (userExists) {
+      throw new BadRequestException('Email already exists');
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new AuthUser();
     user.email = email;
+     user.isAdmin = Boolean(isAdmin);
     user.password = hashedPassword;
 
     // Generate verification token
@@ -96,9 +99,9 @@ export class AuthService {
       throw new UnauthorizedException('Email not verified');
     }
 
-    const payload = { email: user.email, sub: user.id };
-    const option = { expiresIn: '1h' };
-    const secretKey = 'mysecretkey';
+    const payload = { email: user.email, sub: user.id,isAdmin:user.isAdmin};
+    const option = { expiresIn: '10h' };
+    const secretKey = process.env.JWT_SECRET
     const token = jwt.sign(payload, secretKey, option);
     return token;
   }
