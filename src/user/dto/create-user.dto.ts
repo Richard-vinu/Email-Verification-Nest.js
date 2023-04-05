@@ -1,14 +1,14 @@
 
-export enum Team {
-    FRONTEND="frontend",
-    BACKEND="backend",
-    FULLSTACK="fullstack"
+export class CreateUserDto {
+  readonly email: string;
+  readonly password: string;
+  // readonly role:string
+
 }
 
-export class CreateUserDto {
-  employ_id: string;
-  userName: string;
-  email: string;
-  DOB: Date;
-  team: Team;
+
+
+export class LoginDto {
+  readonly email: string;
+  readonly password: string;
 }

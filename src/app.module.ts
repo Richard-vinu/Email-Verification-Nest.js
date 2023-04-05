@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import { MailerModule } from '@nestjs-modules/mailer';
+import { ProductModule } from './product/product.module';
 import { UserModule } from './user/user.module';
-import { PostModule } from './post/post.module';
+// import { AuthModule } from './auth/auth.module';
+
 
 @Module({
   imports: [
@@ -19,9 +19,10 @@ import { PostModule } from './post/post.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    AuthModule,
+    ProductModule,
     UserModule,
-    PostModule,
+    // AuthModule,
+   
 
   ],
   // controllers: [AppController],

@@ -1,73 +1,72 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { CreateUserDto, LoginDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { EmployeeEntity } from './entities/user.entity';
-import { FindOneOptions, Repository, FindOperator } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { FindOneOptions, Repository } from 'typeorm';
+import { compare } from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(EmployeeEntity)
-    private readonly empRepository: Repository<EmployeeEntity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<EmployeeEntity> {
-    const employee = new EmployeeEntity();
-    employee.userName = createUserDto.userName;
-    employee.DOB = createUserDto.DOB;
-    employee.email = createUserDto.email;
-    employee.team = createUserDto.team;
+  createUser(createUserDto: CreateUserDto): Promise<User> {
+    const user = new User();
+    user.email = createUserDto.email;
+    user.setPassword(createUserDto.password);
 
-    // any other properties that need to be set
-
-    return this.empRepository.save(employee);
+    return  this.userRepository.save(user);
   }
 
-  // async findForUser() {
-  //   const isNotDeleted: FindOperator<boolean> = { $ne: true };
-  //   return this.empRepository.find({ isDeleted: isNotDeleted });
-  // }
+  async login(loginDto: LoginDto): Promise<string> {
+    const { email, password } = loginDto;
+    const options: FindOneOptions<User> = { where: { email } };
 
-  async findAll() {
-    return this.empRepository.find();
-  }
-
-  async findOne(id: string) {
-    const options: FindOneOptions<EmployeeEntity> = {
-      where: { employ_id: id, isDeleted: false },
-    };
-
-    const user = await this.empRepository.findOne(options);
-
-    // console.log(user);
-
-    if (user.isDeleted) return 'user has been delete';
-
-    return user;
-  }
-
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    const options: FindOneOptions<EmployeeEntity> = {
-      where: { employ_id: id },
-    };
-    const user = await this.empRepository.findOne(options);
+    const user = await this.userRepository.findOne(options);
 
     if (!user) {
-      throw new Error(`Entity  not found`);
+      throw new UnauthorizedException('Invalid email or password');
     }
-    user.userName = updateUserDto.userName;
-    user.email = updateUserDto.email;
-    user.DOB = updateUserDto.DOB;
-    user.team = updateUserDto.team;
-    return this.empRepository.save(user);
+
+    const isPasswordMatch = await compare(password, user.passwordHash);
+
+    if (!isPasswordMatch) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+
+    const payload = { email: user.email, sub: user.id };
+    const option = { expiresIn: '1h' };
+    const secretKey = process.env.JWT_SECRET
+    const token = jwt.sign(payload, secretKey, option);
+    return token;
   }
 
-  async remove(id: string) {
-    // const options: FindOneOptions<EmployeeEntity> =
-    //   { employ_id: id },
-    // ;
-    const user = await this.empRepository.softDelete({ employ_id: id });
 
-    return `This action deleted the user `;
+
+  async findByEmail(email: string): Promise<User> {
+    const options: FindOneOptions<User> = {
+      where: { email },
+    };
+    return await this.userRepository.findOne(options);
+  }
+
+  findAll() {
+    return `This action returns all user`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} user`;
+  }
+
+  update(id: number, updateUserDto: UpdateUserDto) {
+    return `This action updates a #${id} user`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} user`;
   }
 }

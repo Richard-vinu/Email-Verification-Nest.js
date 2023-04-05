@@ -1,34 +1,21 @@
-import { Team } from '../dto/create-user.dto';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-import { Column, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
-
-@Entity('employee')
-export class EmployeeEntity {
-  @PrimaryGeneratedColumn('uuid')
-  employ_id: string;
-
-  @Column()
-  userName: string;
-
-  @Column()
+  @Column({ unique: true })
   email: string;
 
-  @Column({ type: 'date' })
-  DOB: Date;
-
   @Column()
-  team: string;
+  passwordHash: string;
 
-  @Column({ default: false })
-  isDeleted: boolean;
+  setPassword(password: string): void {
+    this.passwordHash = bcrypt.hashSync(password, 10);
+  }
 
-  
-  // @Column({nullable:true,type: 'date' })
-  // deletedAt:Date;
-  @DeleteDateColumn()
-  deletedAt:Date
-
-  
-}
-
+  comparePassword(password: string): boolean {
+    return bcrypt.compareSync(password, this.passwordHash);
+  }
+} 
