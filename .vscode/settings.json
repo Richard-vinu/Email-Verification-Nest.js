@@ -1,8 +1,0 @@
-{
-    "dotenv.enableAutocloaking": false,
-    "cSpell.words": [
-        "jwtsecret",
-        "mysecretkey",
-        "typeorm"
-    ]
-}
