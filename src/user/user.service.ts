@@ -1,11 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto, LoginDto } from './dto/create-user.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { FindOneOptions, Repository } from 'typeorm';
-import { compare } from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
+import { InjectRepository } from '@nestjs/typeorm';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -13,45 +12,8 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  createUser(createUserDto: CreateUserDto): Promise<User> {
-    const user = new User();
-    user.email = createUserDto.email;
-    user.setPassword(createUserDto.password);
-
-    return  this.userRepository.save(user);
-  }
-
-  async login(loginDto: LoginDto): Promise<string> {
-    const { email, password } = loginDto;
-    const options: FindOneOptions<User> = { where: { email } };
-
-    const user = await this.userRepository.findOne(options);
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-    const isPasswordMatch = await compare(password, user.passwordHash);
-
-    if (!isPasswordMatch) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-
-    const payload = { email: user.email, sub: user.id };
-    const option = { expiresIn: '1h' };
-    const secretKey = process.env.JWT_SECRET
-    const token = jwt.sign(payload, secretKey, option);
-    return token;
-  }
-
-
-
-  async findByEmail(email: string): Promise<User> {
-    const options: FindOneOptions<User> = {
-      where: { email },
-    };
-    return await this.userRepository.findOne(options);
+  create(createUserDto: CreateUserDto) {
+    return this.userRepository.save(createUserDto);
   }
 
   findAll() {
@@ -62,8 +24,20 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+     const options: FindOneOptions<User> = { where: { id } };
+    const user = await this.userRepository.findOne(options);
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    const updatedUser = {
+      ...user,
+      ...updateUserDto,
+    };
+
+    return this.userRepository.save(updatedUser);
   }
 
   remove(id: number) {

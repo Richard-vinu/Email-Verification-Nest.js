@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { ProductModule } from './product/product.module';
 import { UserModule } from './user/user.module';
-// import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -18,12 +16,9 @@ import { UserModule } from './user/user.module';
       database: process.env.POSTGRES_DATABASE,
       autoLoadEntities: true,
       synchronize: true,
-    }),
-    ProductModule,
-    UserModule,
-    // AuthModule,
-   
+    }),   
 
+    UserModule
   ],
   // controllers: [AppController],
   // providers: [AppService],

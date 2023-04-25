@@ -1,21 +1,25 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-@Entity()
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+@Entity('Dummy')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Column()
-  passwordHash: string;
+  password: string;
 
-  setPassword(password: string): void {
-    this.passwordHash = bcrypt.hashSync(password, 10);
-  }
+  @CreateDateColumn()
+  createdAt: Date;
 
-  comparePassword(password: string): boolean {
-    return bcrypt.compareSync(password, this.passwordHash);
-  }
-} 
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
