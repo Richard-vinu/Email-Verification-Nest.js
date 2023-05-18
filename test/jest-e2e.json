@@ -1,1 +1,13 @@
 
+  async verifyEmail(token: string) {
+    const user = await this.userService.findToken(token);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.isEmailVerified = true;
+    user.resetToken = null;
+
+    await this.userService.save(user);
+  }
